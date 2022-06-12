@@ -1,0 +1,23 @@
+#Desenvolvido no VScode
+
+import scrapy
+
+
+class RaulSeixas (scrapy.Spider):
+    name ='TocaRaul'
+    start_urls = ['https://www.letras.mus.br/raul-seixas/48317/']
+
+    def parse (self,response):
+        musicas = response.xpath ('*//div[@id="cnt_top"]')
+        for r in musicas:
+            yield {
+                'titulo musica': r.xpath ('//div[@class="cnt-head_title"]/h1/text()').get(),               
+                'letra musica': r.xpath ('*//div[@class="cnt-letra p402_premium"]/p/text()').getall()   
+            }
+
+        maismais = response.xpath ('//li[@class="cnt-list-row -song"]/a/@href').getall()
+        
+        if maismais is not None:
+            for link in maismais:
+                print (response.urljoin(link))
+                yield scrapy.Request (response.urljoin(link), callback = self.parse)
